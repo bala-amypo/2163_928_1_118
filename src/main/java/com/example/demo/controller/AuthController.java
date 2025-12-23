@@ -1,11 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.AppUser;
 import com.example.demo.repository.AppUserRepository;
-import com.example.demo.security.CustomUserDetailsService;
-import com.example.demo.security.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,37 +9,38 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final CustomUserDetailsService userDetailsService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final PasswordEncoder passwordEncoder;
     private final AppUserRepository appUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(CustomUserDetailsService userDetailsService,
-                          JwtTokenProvider jwtTokenProvider,
-                          PasswordEncoder passwordEncoder,
-                          AppUserRepository appUserRepository) {
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(AppUserRepository appUserRepository,
+                          PasswordEncoder passwordEncoder) {
         this.appUserRepository = appUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
+    // Simple register (NO DTO)
     @PostMapping("/register")
-    public AppUser register(@RequestBody RegisterRequest request) {
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-        AppUser user = new AppUser(request.getEmail(), encodedPassword, request.getRole());
+    public AppUser register(@RequestParam String email,
+                            @RequestParam String password,
+                            @RequestParam String role) {
+
+        String encodedPassword = passwordEncoder.encode(password);
+        AppUser user = new AppUser(email, encodedPassword, role);
         return appUserRepository.save(user);
     }
 
+    // Simple login (NO JWT yet)
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-        var userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+    public String login(@RequestParam String email,
+                        @RequestParam String password) {
 
-        if (!passwordEncoder.matches(request.getPassword(), userDetails.getPassword())) {
+        AppUser user = appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        AppUser user = appUserRepository.findByEmail(request.getEmail()).get();
-        return jwtTokenProvider.generateToken(user);
+        return "Login successful";
     }
 }
