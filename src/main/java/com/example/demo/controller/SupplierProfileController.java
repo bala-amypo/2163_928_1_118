@@ -10,30 +10,30 @@ import java.util.List;
 @RequestMapping("/api/suppliers")
 public class SupplierProfileController {
 
-    private final SupplierProfileService supplierProfileService;
+    private final SupplierProfileService supplierService;
 
-    public SupplierProfileController(SupplierProfileService supplierProfileService) {
-        this.supplierProfileService = supplierProfileService;
+    public SupplierProfileController(SupplierProfileService supplierService) {
+        this.supplierService = supplierService;
     }
 
     @PostMapping
     public SupplierProfile createSupplier(@RequestBody SupplierProfile supplier) {
-        return supplierProfileService.createSupplier(supplier);
+        return supplierService.createSupplier(supplier);
     }
 
     @GetMapping("/{id}")
     public SupplierProfile getSupplier(@PathVariable Long id) {
-        return supplierProfileService.getSupplierById(id);
+        return supplierService.getSupplierById(id);
     }
 
     @GetMapping
     public List<SupplierProfile> getAllSuppliers() {
-        return supplierProfileService.getAllSuppliers();
+        return supplierService.getAllSuppliers();
     }
 
     @PutMapping("/{id}/status")
     public SupplierProfile updateStatus(@PathVariable Long id,
                                         @RequestParam boolean active) {
-        return supplierProfileService.updateSupplierStatus(id, active);
+        return supplierService.updateSupplierStatus(id, active);
     }
 }

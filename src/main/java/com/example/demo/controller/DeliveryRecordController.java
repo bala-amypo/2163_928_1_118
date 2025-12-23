@@ -10,24 +10,24 @@ import java.util.List;
 @RequestMapping("/api/deliveries")
 public class DeliveryRecordController {
 
-    private final DeliveryRecordService deliveryRecordService;
+    private final DeliveryRecordService deliveryService;
 
-    public DeliveryRecordController(DeliveryRecordService deliveryRecordService) {
-        this.deliveryRecordService = deliveryRecordService;
+    public DeliveryRecordController(DeliveryRecordService deliveryService) {
+        this.deliveryService = deliveryService;
     }
 
     @PostMapping
     public DeliveryRecord recordDelivery(@RequestBody DeliveryRecord delivery) {
-        return deliveryRecordService.recordDelivery(delivery);
+        return deliveryService.recordDelivery(delivery);
     }
 
     @GetMapping("/po/{poId}")
-    public List<DeliveryRecord> getDeliveriesByPO(@PathVariable Long poId) {
-        return deliveryRecordService.getDeliveriesByPO(poId);
+    public List<DeliveryRecord> getByPO(@PathVariable Long poId) {
+        return deliveryService.getDeliveriesByPO(poId);
     }
 
     @GetMapping
     public List<DeliveryRecord> getAllDeliveries() {
-        return deliveryRecordService.getAllDeliveries();
+        return deliveryService.getAllDeliveries();
     }
 }

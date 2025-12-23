@@ -10,24 +10,24 @@ import java.util.List;
 @RequestMapping("/api/delay-scores")
 public class DelayScoreController {
 
-    private final DelayScoreService delayScoreService;
+    private final DelayScoreService scoreService;
 
-    public DelayScoreController(DelayScoreService delayScoreService) {
-        this.delayScoreService = delayScoreService;
+    public DelayScoreController(DelayScoreService scoreService) {
+        this.scoreService = scoreService;
     }
 
     @PostMapping("/compute/{poId}")
-    public DelayScoreRecord computeScore(@PathVariable Long poId) {
-        return delayScoreService.computeDelayScore(poId);
+    public DelayScoreRecord compute(@PathVariable Long poId) {
+        return scoreService.computeDelayScore(poId);
     }
 
     @GetMapping("/supplier/{supplierId}")
-    public List<DelayScoreRecord> getScoresBySupplier(@PathVariable Long supplierId) {
-        return delayScoreService.getScoresBySupplier(supplierId);
+    public List<DelayScoreRecord> getBySupplier(@PathVariable Long supplierId) {
+        return scoreService.getScoresBySupplier(supplierId);
     }
 
     @GetMapping
     public List<DelayScoreRecord> getAllScores() {
-        return delayScoreService.getAllScores();
+        return scoreService.getAllScores();
     }
 }
