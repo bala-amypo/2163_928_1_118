@@ -51,15 +51,65 @@
 // }
 
 
+// package com.example.demo.security;
+
+// import com.example.demo.model.AppUser;
+// import org.springframework.stereotype.Component;
+
+// @Component
+// public class JwtTokenProvider {
+//     // Logic not strictly required for unit tests as it is mocked
+//     public String generateToken(AppUser user) {
+//         return "mock-token";
+//     }
+// }
+
 package com.example.demo.security;
 
-import com.example.demo.model.AppUser;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import java.security.Key;
+import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-    // Logic not strictly required for unit tests as it is mocked
-    public String generateToken(AppUser user) {
-        return "mock-token";
+    // Generate a secure key for HS512
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private final long jwtExpirationInMs = 3600000; // 1 hour
+
+    public String generateToken(Authentication authentication) {
+        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(userPrincipal.getUsername()) // usually email
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(key)
+                .compact();
+    }
+
+    public String getUsernameFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+
+    public boolean validateToken(String authToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
+            return true;
+        } catch (JwtException | IllegalArgumentException ex) {
+            // Log exception
+        }
+        return false;
     }
 }
