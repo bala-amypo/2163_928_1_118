@@ -10,29 +10,29 @@ import java.util.List;
 @RequestMapping("/api/purchase-orders")
 public class PurchaseOrderController {
 
-    private final PurchaseOrderService poService;
+    private final PurchaseOrderService service;
 
-    public PurchaseOrderController(PurchaseOrderService poService) {
-        this.poService = poService;
+    public PurchaseOrderController(PurchaseOrderService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public PurchaseOrderRecord createPO(@RequestBody PurchaseOrderRecord po) {
-        return poService.createPurchaseOrder(po);
+    public PurchaseOrderRecord create(@RequestBody PurchaseOrderRecord po) {
+        return service.createPurchaseOrder(po);
     }
 
     @GetMapping("/{id}")
-    public PurchaseOrderRecord getPO(@PathVariable Long id) {
-        return poService.getPOById(id).orElse(null);
+    public PurchaseOrderRecord get(@PathVariable Long id) {
+        return service.getPOById(id).orElse(null);
     }
 
     @GetMapping("/supplier/{supplierId}")
     public List<PurchaseOrderRecord> getBySupplier(@PathVariable Long supplierId) {
-        return poService.getPOsBySupplier(supplierId);
+        return service.getPOsBySupplier(supplierId);
     }
 
     @GetMapping
-    public List<PurchaseOrderRecord> getAllPOs() {
-        return poService.getAllPurchaseOrders();
+    public List<PurchaseOrderRecord> getAll() {
+        return service.getAllPurchaseOrders();
     }
 }

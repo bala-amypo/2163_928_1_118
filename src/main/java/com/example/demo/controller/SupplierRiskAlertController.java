@@ -10,29 +10,29 @@ import java.util.List;
 @RequestMapping("/api/risk-alerts")
 public class SupplierRiskAlertController {
 
-    private final SupplierRiskAlertService riskAlertService;
+    private final SupplierRiskAlertService service;
 
-    public SupplierRiskAlertController(SupplierRiskAlertService riskAlertService) {
-        this.riskAlertService = riskAlertService;
+    public SupplierRiskAlertController(SupplierRiskAlertService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public SupplierRiskAlert createAlert(@RequestBody SupplierRiskAlert alert) {
-        return riskAlertService.createAlert(alert);
-    }
-
-    @GetMapping("/supplier/{supplierId}")
-    public List<SupplierRiskAlert> getAlertsBySupplier(@PathVariable Long supplierId) {
-        return riskAlertService.getAlertsBySupplier(supplierId);
+    public SupplierRiskAlert create(@RequestBody SupplierRiskAlert alert) {
+        return service.createAlert(alert);
     }
 
     @PutMapping("/{id}/resolve")
-    public SupplierRiskAlert resolveAlert(@PathVariable Long id) {
-        return riskAlertService.resolveAlert(id);
+    public SupplierRiskAlert resolve(@PathVariable Long id) {
+        return service.resolveAlert(id);
+    }
+
+    @GetMapping("/supplier/{supplierId}")
+    public List<SupplierRiskAlert> getBySupplier(@PathVariable Long supplierId) {
+        return service.getAlertsBySupplier(supplierId);
     }
 
     @GetMapping
-    public List<SupplierRiskAlert> getAllAlerts() {
-        return riskAlertService.getAllAlerts();
+    public List<SupplierRiskAlert> getAll() {
+        return service.getAllAlerts();
     }
 }
