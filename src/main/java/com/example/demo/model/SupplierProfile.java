@@ -16,27 +16,12 @@ public class SupplierProfile {
     private String email;
     private String phone;
     private Boolean active = true;
-
     private LocalDateTime createdAt;
 
     public SupplierProfile() {}
 
-    public SupplierProfile(String supplierCode, String supplierName, String email, String phone, Boolean active) {
-        this.supplierCode = supplierCode;
-        this.supplierName = supplierName;
-        this.email = email;
-        this.phone = phone;
-        this.active = active;
-    }
-
     @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-        if (active == null) active = true;
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
-
-    public Long getId() { return id; }
-    public String getSupplierCode() { return supplierCode; }
-    public Boolean getActive() { return active; }
-    public void setActive(Boolean active) { this.active = active; }
 }
