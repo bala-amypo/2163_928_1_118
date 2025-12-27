@@ -2,13 +2,13 @@ package com.example.demo.service.impl;
 
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.model.DeliveryRecord;
-import com.example.demo.model.PurchaseOrderRecord;
 import com.example.demo.repository.DeliveryRecordRepository;
 import com.example.demo.repository.PurchaseOrderRecordRepository;
 import com.example.demo.service.DeliveryRecordService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DeliveryRecordServiceImpl implements DeliveryRecordService {
@@ -25,14 +25,10 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
     @Override
     public DeliveryRecord recordDelivery(DeliveryRecord delivery) {
 
-        // 🔗 Relationship check: PO must exist
-        PurchaseOrderRecord po = poRepository.findById(delivery.getPoId())
-                .orElseThrow(() ->
-                        new BadRequestException("Invalid PO id"));
+        poRepository.findById(delivery.getPoId())
+                .orElseThrow(() -> new BadRequestException("Invalid PO id"));
 
-        // ✅ Validation: delivered quantity >= 0
-        if (delivery.getDeliveredQuantity() == null ||
-                delivery.getDeliveredQuantity() < 0) {
+        if (delivery.getDeliveredQuantity() < 0) {
             throw new BadRequestException("Delivered quantity must be >=");
         }
 
@@ -42,6 +38,11 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
     @Override
     public List<DeliveryRecord> getDeliveriesByPO(Long poId) {
         return deliveryRepository.findByPoId(poId);
+    }
+
+    @Override
+    public Optional<DeliveryRecord> getDeliveryById(Long id) {
+        return deliveryRepository.findById(id);
     }
 
     @Override

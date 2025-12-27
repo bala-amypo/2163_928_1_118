@@ -12,42 +12,39 @@ import java.util.Optional;
 @Service
 public class SupplierProfileServiceImpl implements SupplierProfileService {
 
-    private final SupplierProfileRepository supplierRepository;
+    private final SupplierProfileRepository repository;
 
-    public SupplierProfileServiceImpl(SupplierProfileRepository supplierRepository) {
-        this.supplierRepository = supplierRepository;
+    public SupplierProfileServiceImpl(SupplierProfileRepository repository) {
+        this.repository = repository;
     }
 
     @Override
     public SupplierProfile createSupplier(SupplierProfile supplier) {
-        supplierRepository.findBySupplierCode(supplier.getSupplierCode())
-                .ifPresent(s -> {
-                    throw new IllegalArgumentException("Supplier code already exists");
-                });
-        return supplierRepository.save(supplier);
+        repository.findBySupplierCode(supplier.getSupplierCode())
+                .ifPresent(s -> { throw new IllegalArgumentException("Supplier code already exists"); });
+        return repository.save(supplier);
     }
 
     @Override
     public SupplierProfile getSupplierById(Long id) {
-        return supplierRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Supplier not found"));
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
     }
 
     @Override
     public Optional<SupplierProfile> getBySupplierCode(String supplierCode) {
-        return supplierRepository.findBySupplierCode(supplierCode);
+        return repository.findBySupplierCode(supplierCode);
     }
 
     @Override
     public List<SupplierProfile> getAllSuppliers() {
-        return supplierRepository.findAll();
+        return repository.findAll();
     }
 
     @Override
     public SupplierProfile updateSupplierStatus(Long id, boolean active) {
         SupplierProfile supplier = getSupplierById(id);
         supplier.setActive(active);
-        return supplierRepository.save(supplier);
+        return repository.save(supplier);
     }
 }
