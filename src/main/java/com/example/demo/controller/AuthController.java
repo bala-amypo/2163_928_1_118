@@ -1,46 +1,38 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.AppUser;
-import com.example.demo.repository.AppUserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AppUserRepository appUserRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
+    private final JwtTokenProvider tokenProvider;
 
-    public AuthController(AppUserRepository appUserRepository,
-                          PasswordEncoder passwordEncoder) {
-        this.appUserRepository = appUserRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(AuthService authService, JwtTokenProvider tokenProvider) {
+        this.authService = authService;
+        this.tokenProvider = tokenProvider;
     }
 
-    // Simple register (NO DTO)
     @PostMapping("/register")
-    public AppUser register(@RequestParam String email,
-                            @RequestParam String password,
-                            @RequestParam String role) {
-
-        String encodedPassword = passwordEncoder.encode(password);
-        AppUser user = new AppUser(email, encodedPassword, role);
-        return appUserRepository.save(user);
+    public Map<String, String> register(@Valid @RequestBody RegisterRequest req) {
+        AppUser user = new AppUser();
+        user.setEmail(req.getEmail());
+        user.setPassword(req.getPassword());
+        user.setRole(req.getRole());
+        authService.registerUser(user);
+        return Map.of("message", "User registered");
     }
 
-    // Simple login (NO JWT yet)
     @PostMapping("/login")
-    public String login(@RequestParam String email,
-                        @RequestParam String password) {
-
-        AppUser user = appUserRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
-
-        return "Login successful";
-    }
-}
+    public Map<String, String> login(@Valid @RequestBody LoginRequest req) {
+        AppUser user = authService.findByEmail(req.getEmail());
+        return Map.of("token", tokenProvider.generateToken(user));
