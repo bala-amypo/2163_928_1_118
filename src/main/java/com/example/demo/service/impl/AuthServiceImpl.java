@@ -79,43 +79,35 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtResponse login(LoginRequest request) {
-        // 1. Authenticate using Spring Security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        // 2. Set Context
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // 3. Generate Token
         String token = tokenProvider.generateToken(authentication);
 
-        // 4. Retrieve User Details to return role/email
         AppUser user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadRequestException("User not found after authentication"));
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
         return new JwtResponse(token, user.getEmail(), user.getRole().name());
     }
 
     @Override
     public AppUser register(RegisterRequest request) {
-        // 1. Validate Email existence
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email is already in use");
+            throw new BadRequestException("Email already exists");
         }
-        // 2. Validate Username existence (if required by constraints)
+        // Check if username exists if the entity requires unique username
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BadRequestException("Username is already taken");
+             throw new BadRequestException("Username already exists");
         }
 
-        // 3. Create new User entity
         AppUser user = new AppUser();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
 
-        // 4. Save and return
         return userRepository.save(user);
     }
 }
