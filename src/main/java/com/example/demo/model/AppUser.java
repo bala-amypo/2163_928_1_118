@@ -16,19 +16,8 @@ public class AppUser {
     private String role;
     private LocalDateTime createdAt;
 
-    public AppUser() {}
-
-    public AppUser(String email, String password, String role) {
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
-
     @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
-
-    public String getPassword() { return password; }
-    public String getEmail() { return email; }
 }
