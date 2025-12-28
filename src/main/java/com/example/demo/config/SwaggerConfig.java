@@ -1,38 +1,50 @@
 package com.example.demo.config;
 
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
+    public static final String SECURITY_SCHEME_NAME = "bearerAuth";
 
+    @Bean
+    public OpenAPI openAPI() {
         return new OpenAPI()
-                // 1. Define the Security Scheme (The "Authorize" button config)
+                
+                .info(new Info()
+                        .title("Supply Chain Weak Link Analyzer")
+                        .version("1.0")
+                        .description("JWT-secured Supply Chain Analytics API")
+                )
+
+                
+                .servers(List.of(
+                        new Server().url("https://9420.pro604cr.amypo.ai/")
+                ))
+
+            
+                .addSecurityItem(new SecurityRequirement()
+                        .addList(SECURITY_SCHEME_NAME))
+
+           
                 .components(new Components()
-                        .addSecuritySchemes(securitySchemeName,
+                        .addSecuritySchemes(
+                                SECURITY_SCHEME_NAME,
                                 new SecurityScheme()
-                                        .name(securitySchemeName)
+                                        .name(SECURITY_SCHEME_NAME)
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
-                                        .bearerFormat("JWT") // Optional: Remove if not JWT
+                                        .bearerFormat("JWT")
                         )
-                )
-                // 2. Add the Security Requirement globally to all endpoints
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                
-                // 3. Your existing Server configuration
-                .servers(List.of(
-                        new Server().url("https://9172.408procr.amypo.ai")
-                ));
+                );
     }
 }
