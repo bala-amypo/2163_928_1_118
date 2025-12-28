@@ -1,97 +1,60 @@
-// package com.example.demo.service.impl;
-
-// import com.example.demo.exception.BadRequestException;
-// import com.example.demo.model.DeliveryRecord;
-// import com.example.demo.repository.DeliveryRecordRepository;
-// import com.example.demo.repository.PurchaseOrderRecordRepository;
-// import com.example.demo.service.DeliveryRecordService;
-// import org.springframework.stereotype.Service;
-
-// import java.util.List;
-// import java.util.Optional;
-
-// @Service
-// public class DeliveryRecordServiceImpl implements DeliveryRecordService {
-
-//     private final DeliveryRecordRepository deliveryRepository;
-//     private final PurchaseOrderRecordRepository poRepository;
-
-//     public DeliveryRecordServiceImpl(DeliveryRecordRepository deliveryRepository,
-//                                      PurchaseOrderRecordRepository poRepository) {
-//         this.deliveryRepository = deliveryRepository;
-//         this.poRepository = poRepository;
-//     }
-
-//     @Override
-//     public DeliveryRecord recordDelivery(DeliveryRecord delivery) {
-
-//         poRepository.findById(delivery.getPoId())
-//                 .orElseThrow(() -> new BadRequestException("Invalid PO id"));
-
-//         if (delivery.getDeliveredQuantity() < 0) {
-//             throw new BadRequestException("Delivered quantity must be >=");
-//         }
-
-//         return deliveryRepository.save(delivery);
-//     }
-
-//     @Override
-//     public List<DeliveryRecord> getDeliveriesByPO(Long poId) {
-//         return deliveryRepository.findByPoId(poId);
-//     }
-
-//     @Override
-//     public Optional<DeliveryRecord> getDeliveryById(Long id) {
-//         return deliveryRepository.findById(id);
-//     }
-
-//     @Override
-//     public List<DeliveryRecord> getAllDeliveries() {
-//         return deliveryRepository.findAll();
-//     }
-// }
-
-
 package com.example.demo.service.impl;
 
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.model.DeliveryRecord;
-import com.example.demo.model.PurchaseOrderRecord;
 import com.example.demo.repository.DeliveryRecordRepository;
 import com.example.demo.repository.PurchaseOrderRecordRepository;
-import com.example.demo.service.DeliveryRecordService;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
-public class DeliveryRecordServiceImpl implements DeliveryRecordService {
+public class DeliveryRecordServiceImpl {
 
-    private final DeliveryRecordRepository deliveryRepository;
-    private final PurchaseOrderRecordRepository poRepository;
+    private DeliveryRecordRepository deliveryRepo;
+    private PurchaseOrderRecordRepository poRepo;
 
-    public DeliveryRecordServiceImpl(DeliveryRecordRepository deliveryRepository, PurchaseOrderRecordRepository poRepository) {
-        this.deliveryRepository = deliveryRepository;
-        this.poRepository = poRepository;
+    // No-arg constructor to support injection by frameworks / Mockito
+    public DeliveryRecordServiceImpl() {}
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public DeliveryRecordServiceImpl(DeliveryRecordRepository deliveryRepo,
+                                     PurchaseOrderRecordRepository poRepo) {
+        this.deliveryRepo = deliveryRepo;
+        this.poRepo = poRepo;
+        System.out.println("[DEBUG] DeliveryRecordServiceImpl constructed with deliveryRepo=" + (deliveryRepo==null?"null":deliveryRepo.getClass()) + ", poRepo=" + (poRepo==null?"null":poRepo.getClass()));
     }
 
-    @Override
-    public DeliveryRecord recordDelivery(DeliveryRecord delivery) {
-        poRepository.findById(delivery.getPoId())
-                .orElseThrow(() -> new BadRequestException("Invalid PO id"));
+    @org.springframework.beans.factory.annotation.Autowired
+    public void setDeliveryRepo(DeliveryRecordRepository deliveryRepo) { this.deliveryRepo = deliveryRepo; }
 
-        if (delivery.getDeliveredQuantity() == null || delivery.getDeliveredQuantity() < 0) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public void setPoRepo(PurchaseOrderRecordRepository poRepo) { this.poRepo = poRepo; }
+
+    public DeliveryRecord recordDelivery(DeliveryRecord delivery) {
+
+        System.out.println("[DEBUG] recordDelivery called with poId=" + delivery.getPoId() + "; qty=" + delivery.getDeliveredQuantity());
+        System.out.println("[DEBUG] poRepo instance class=" + (poRepo==null?"null":poRepo.getClass()));
+        System.out.println("[DEBUG] deliveryRepo instance class=" + (deliveryRepo==null?"null":deliveryRepo.getClass()));
+        System.out.println("[DEBUG] poRepo.findById result present? " + (poRepo.findById(delivery.getPoId()) != null && poRepo.findById(delivery.getPoId()).isPresent()));
+
+        if (poRepo.findById(delivery.getPoId()).isEmpty()) {
+            throw new BadRequestException("Invalid PO id");
+        }
+
+        if (delivery.getDeliveredQuantity() < 0) {
             throw new BadRequestException("Delivered quantity must be >=");
         }
-        return deliveryRepository.save(delivery);
+
+        return deliveryRepo.save(delivery);
     }
 
-    @Override
     public List<DeliveryRecord> getDeliveriesByPO(Long poId) {
-        return deliveryRepository.findByPoId(poId);
+        return deliveryRepo.findByPoId(poId);
     }
 
-    @Override
     public List<DeliveryRecord> getAllDeliveries() {
-        return deliveryRepository.findAll();
+        return deliveryRepo.findAll();
     }
 }
+
