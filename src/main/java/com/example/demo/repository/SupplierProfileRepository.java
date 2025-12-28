@@ -1,25 +1,12 @@
-// package com.example.demo.repository;
-
-// import com.example.demo.model.SupplierProfile;
-// import org.springframework.data.jpa.repository.JpaRepository;
-
-// import java.util.Optional;
-
-// public interface SupplierProfileRepository extends JpaRepository<SupplierProfile, Long> {
-//     Optional<SupplierProfile> findBySupplierCode(String supplierCode);
-// }
-
-
 package com.example.demo.repository;
 
-import com.example.demo.model.SupplierProfile;
+import com.example.demo.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-@Repository
 public interface SupplierProfileRepository extends JpaRepository<SupplierProfile, Long> {
     Optional<SupplierProfile> findBySupplierCode(String supplierCode);
-    List<SupplierProfile> findByActiveTrue();
+    List<SupplierProfile> findBySupplierNameContainingIgnoreCase(String name);
+    
+
 }
